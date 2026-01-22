@@ -12,7 +12,8 @@ https://coh-ai-chatbot.onrender.com/
 - Backend: Flask API and Vanna AI
 - Frontend: HTML/CSS (chat interface)  
 - Database: MySQL
-- AI Integration: Mistral AI API
-- Hosted via Render (https://coh-ai-chatbot.onrender.com/) (https://dashboard.render.com/web/srv-d3nbcpeuk2gs7386c7jg/metrics)
+- LLM: Mistral AI API
+- Hosted via Render (https://coh-ai-chatbot.onrender.com/)
+- Render Dashboard (https://dashboard.render.com/web/srv-d3nbcpeuk2gs7386c7jg/metrics)
 
 ### Goal: Provide an accessible, safe, and user-friendly platform for youth to find the local resources they need and take steps toward support and empowerment.
