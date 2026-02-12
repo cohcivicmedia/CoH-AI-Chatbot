@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -67,6 +67,31 @@
       button:hover {
         background-color: #1e88e5;
       }
+      #tip-form {
+        margin-top: 60px;
+      }
+      /* make tip button green */
+      #tip-form button {
+        background-color: #18f618f0;
+      }
+      #tip-form button:hover {
+        background-color: #0fb30e;
+      }
+      .admin-link {
+        display: inline-block;
+        margin-top: 15px;
+        margin-bottom: 60px;
+        padding: 8px 14px;
+        color: white;
+        background-color: #2196f3;
+        text-decoration: none;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .admin-link:hover {
+        background-color: #1e88e5;
+      }
     </style>
   </head>
   <body>
@@ -84,9 +109,24 @@
       <button type="submit">Send</button>
     </form>
 
+    <form id="tip-form">
+      <input
+        type="text"
+        name="tip"
+        id="tip"
+        placeholder="Send an anonymous tip"
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Send Tip</button>
+    </form>
+
+    <a href="/tips" class="admin-link">View Tips (Admin Only)</a>
+
     <script>
       const form = document.getElementById("chat-form");
       const chatBox = document.getElementById("chat-box");
+      const tipForm = document.getElementById("tip-form");
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -102,6 +142,22 @@
         const data = await response.json();
         appendMessage("bot", data.response);
         document.getElementById("question").value = "";
+      });
+
+      tipForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const tip = document.getElementById("tip").value;
+
+        const formData = new FormData();
+        formData.append("tip", tip);
+
+        await fetch("/tip", {
+          method: "POST",
+          body: formData,
+        });
+
+        document.getElementById("tip").value = "";
+        alert("Tip submitted!");
       });
 
       function appendMessage(role, message) {
