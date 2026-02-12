@@ -3,7 +3,6 @@ CoH AI Chatbot is an AI-powered chatbot and resource hub designed to help foster
 
 ### Website URL 
 https://coh-ai-chatbot.onrender.com/
-
 ### Features
 - AI chatbot that answers natural language queries using a database of trained resources.
 - Deployment-ready with HTTPS.
@@ -14,6 +13,6 @@ https://coh-ai-chatbot.onrender.com/
 - Database: MySQL
 - LLM: Mistral AI API
 - Hosted via Render (https://coh-ai-chatbot.onrender.com/)
-- Render Dashboard (https://dashboard.render.com/web/srv-d3nbcpeuk2gs7386c7jg/metrics)
+- Render Dashboard (https://dashboard.render.com/web/srv-d3nbcpeuk2gs7386c7jg/metrics) (COHTipBot248)
 
 ### Goal: Provide an accessible, safe, and user-friendly platform for youth to find the local resources they need and take steps toward support and empowerment.
