@@ -1,50 +1,71 @@
-# main.py — CoH AI Chatbot (Flask, using existing trained data + .env variables)
-
-from flask import Flask, render_template, request, jsonify
-from vanna.chromadb import ChromaDB_VectorStore
-from vanna.mistral import Mistral
-from dotenv import load_dotenv
 import os
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from dotenv import load_dotenv
+from mistralai import Mistral, UserMessage
 
-# load env variables
 load_dotenv()
 
-# VannaAI Setup
-class MyVanna(ChromaDB_VectorStore, Mistral):
-    def __init__(self, config=None):
-        # Load your existing ChromaDB vector store (no retraining)
-        ChromaDB_VectorStore.__init__(self, config=config)
-        Mistral.__init__(self, config={
-            'api_key': os.getenv('MISTRAL_API_KEY'),
-            'model': 'mistral-tiny'
-        })
-
-vn = MyVanna()
-
-# ------MySQL Connection
-# vn.connect_to_mysql(
-#     host=os.getenv('MYSQL_HOST'),
-#     dbname=os.getenv('MYSQL_DBNAME'),
-#     user=os.getenv('MYSQL_USER'),
-#     password=os.getenv('MYSQL_PASSWORD'),
-#     port=int(os.getenv('MYSQL_PORT'))
-# )
-
-print("✅ Loaded Vanna + Mistral with existing trained data.")
-
-# Flask setup
 app = Flask(__name__)
 
-@app.route('/')
+# ------------------ Mistral ------------------
+client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+
+# ------------------ Tips Storage ------------------
+anonymous_tips = []
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "supersecret")
+
+# ------------------ Routes ------------------
+
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 @app.route('/ask', methods=['POST'])
 def ask():
     user_input = request.form['question']
-    messages = [{"role": "user", "content": user_input}]
-    response = vn.submit_prompt(messages)
-    return jsonify({"response": response})
 
-if __name__ == '__main__':
+    messages = [
+        UserMessage(content=user_input)
+    ]
+
+    response = client.chat.complete(
+        model="mistral-large-latest",
+        messages=messages
+    )
+
+    ai_text = response.choices[0].message.content
+
+    return jsonify({"response": ai_text})
+
+
+
+
+@app.route("/tip", methods=["POST"])
+def receive_tip():
+    tip = request.form.get("tip")
+    if tip:
+        anonymous_tips.append(tip)
+    return redirect(url_for("index"))
+
+
+@app.route("/tips", methods=["GET", "POST"])
+def view_tips():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == ADMIN_PASSWORD:
+            return render_template("tips.html", tips=anonymous_tips)
+        return render_template("login.html", error="Incorrect password")
+
+    return render_template("login.html")
+
+
+@app.route("/delete_tip", methods=["POST"])
+def delete_tip():
+    tip = request.form.get("tip")
+    if tip in anonymous_tips:
+        anonymous_tips.remove(tip)
+    return redirect(url_for("view_tips"))
+
+
+if __name__ == "__main__":
     app.run(debug=True)
