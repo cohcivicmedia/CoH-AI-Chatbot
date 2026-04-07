@@ -1,6 +1,9 @@
 # CoH-AI-Chatbot
 CoH AI Chatbot is an AI-powered chatbot and resource hub designed to help foster care and incarcerated youth access essential programs and support services. It integrates a secure database of resources such as education, housing, mental health support, legal aid, and scholarships, and provides conversational guidance to users through a friendly, easy-to-use chat interface. Fueled by the Communities of Hope.
 
+
+### Hosted on: 
+https://hope.rwu.me/hope-bot/
 ### Website URL 
 https://coh-ai-chatbot.onrender.com/
 ### Features
