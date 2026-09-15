@@ -29,7 +29,7 @@ def ask():
     ]
 
     response = client.chat.complete(
-        model="mistral-large-latest",
+        model="mistral-8b-latest",
         messages=messages
     )
 
