@@ -16,27 +16,38 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "supersecret")
 
 # ------------------ Routes ------------------
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
 @app.route('/ask', methods=['POST'])
 def ask():
-    user_input = request.form['question']
+    user_input = request.form.get('question', '')
+    if not user_input:
+        return jsonify({"response": "Please enter a question."}), 400
 
+    # Put the system prompt and user input here:
     messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an empathetic, knowledgeable navigator for foster care and justice-involved youth. "
+                "Provide supportive, clear, actionable steps. "
+                "CRITICAL ACCURACY RULE: Only state verifiable public programs. "
+                "Never fabricate URL links or organization names. If you are unsure of an exact state-level program "
+                "or contact link, advise the user to consult their caseworker, DCYF transition coordinator, "
+                "or 211 (211.org) directly."
+            )
+        },
         {"role": "user", "content": user_input}
     ]
 
-    response = client.chat.complete(
-        model="ministral-8b-latest",
-        messages=messages
-    )
-
-    ai_text = response.choices[0].message.content
-
-    return jsonify({"response": ai_text})
-
+    try:
+        response = client.chat.complete(
+            model="ministral-8b-latest",
+            messages=messages
+        )
+        ai_text = response.choices[0].message.content
+        return jsonify({"response": ai_text})
+    except Exception as e:
+        print(f"Error calling Mistral API: {e}")
+        return jsonify({"response": "Sorry, I am having trouble connecting right now."}), 500
 
 
 
