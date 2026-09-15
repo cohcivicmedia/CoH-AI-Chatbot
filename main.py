@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from dotenv import load_dotenv
-from mistralai import Mistral, UserMessage
+from mistralai import Mistral
 
 load_dotenv()
 
@@ -25,7 +25,7 @@ def ask():
     user_input = request.form['question']
 
     messages = [
-        UserMessage(content=user_input)
+        {"role": "user", "content": user_input}
     ]
 
     response = client.chat.complete(
