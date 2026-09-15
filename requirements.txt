@@ -1,6 +1,6 @@
 flask
 vanna
-mistralai
+mistralai>=1.0.0
 mysqlclient
 pandas
 chromadb
