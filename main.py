@@ -16,6 +16,10 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "supersecret")
 
 # ------------------ Routes ------------------
 
+@app.route("/")
+def index():
+    return render_template("index.html")
+
 @app.route('/ask', methods=['POST'])
 def ask():
     user_input = request.form.get('question', '')
