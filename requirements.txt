@@ -1,7 +1,9 @@
 flask
-vanna
-mistralai==1.2.5
-mysqlclient
-pandas
-chromadb
+gunicorn
+google-genai
 python-dotenv
+vanna
+chromadb
+pandas
+mysqlclient
+cryptography
