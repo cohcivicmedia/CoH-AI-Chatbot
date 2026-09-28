@@ -43,7 +43,7 @@ def ask():
     try:
         # Generate response using Gemini 2.5 Flash
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=user_input,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_INSTRUCTION,
