@@ -1,14 +1,28 @@
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from dotenv import load_dotenv
-from mistralai import Mistral
+from google import genai
+from google.genai import types
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# ------------------ Mistral ------------------
-client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+# ------------------ Gemini Client ------------------
+# Automatically uses GEMINI_API_KEY from environment variables
+client = genai.Client()
+
+SYSTEM_INSTRUCTION = (
+    "You are an empathetic, knowledgeable navigator for foster care and justice-involved youth in Rhode Island. "
+    "Provide supportive, clear, and actionable steps. "
+    "CRITICAL ACCURACY RULE: Only state verifiable public programs and official links. "
+    "Key Rhode Island resources: "
+    "- Postsecondary Tuition Grant: RI DCYF Higher Education Opportunity Grant (higheredgrant.dcyf.ri.gov). "
+    "- Federal support: Chafee ETV and FAFSA independent student status for foster youth. "
+    "- Local nonprofits: Foster Forward (ASPIRE program at fosterforward.net, 401-438-3900) and RI Legal Services (rils.org). "
+    "Never fabricate URLs, phone numbers, or agency names. If you are unsure of an exact state-level program "
+    "or link, advise the user to consult their caseworker, DCYF transition coordinator, or dial 211 (211ri.org)."
+)
 
 # ------------------ Tips Storage ------------------
 anonymous_tips = []
@@ -22,38 +36,25 @@ def index():
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    user_input = request.form.get('question', '')
+    user_input = request.form.get('question', '').strip()
     if not user_input:
         return jsonify({"response": "Please enter a question."}), 400
 
-    # Put the system prompt and user input here:
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are an empathetic, knowledgeable navigator for foster care and justice-involved youth. "
-                "Provide supportive, clear, actionable steps. "
-                "CRITICAL ACCURACY RULE: Only state verifiable public programs. "
-                "Never fabricate URL links or organization names. If you are unsure of an exact state-level program "
-                "or contact link, advise the user to consult their caseworker, DCYF transition coordinator, "
-                "or 211 (211.org) directly."
-            )
-        },
-        {"role": "user", "content": user_input}
-    ]
-
     try:
-        response = client.chat.complete(
-            model="ministral-8b-latest",
-            messages=messages
+        # Generate response using Gemini 2.5 Flash
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=user_input,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_INSTRUCTION,
+                temperature=0.2  # Lower temperature reduces creative hallucinations
+            )
         )
-        ai_text = response.choices[0].message.content
+        ai_text = response.text
         return jsonify({"response": ai_text})
     except Exception as e:
-        print(f"Error calling Mistral API: {e}")
+        print(f"Error calling Gemini API: {e}")
         return jsonify({"response": "Sorry, I am having trouble connecting right now."}), 500
-
-
 
 @app.route("/tip", methods=["POST"])
 def receive_tip():
@@ -61,7 +62,6 @@ def receive_tip():
     if tip:
         anonymous_tips.append(tip)
     return redirect(url_for("index"))
-
 
 @app.route("/tips", methods=["GET", "POST"])
 def view_tips():
@@ -73,7 +73,6 @@ def view_tips():
 
     return render_template("login.html")
 
-
 @app.route("/delete_tip", methods=["POST"])
 def delete_tip():
     tip = request.form.get("tip")
@@ -81,6 +80,8 @@ def delete_tip():
         anonymous_tips.remove(tip)
     return redirect(url_for("view_tips"))
 
-
+# ------------------ Server Boot ------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Binds dynamically to Render's required port and host
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
