@@ -41,7 +41,7 @@ def ask():
         return jsonify({"response": "Please enter a question."}), 400
 
     try:
-        # Generate response using Gemini 2.5 Flash
+        # Generate response using Gemini 3.5 Flash Lite
         response = client.models.generate_content(
             model="gemini-3.5-flash-lite",
             contents=user_input,
