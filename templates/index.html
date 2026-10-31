@@ -137,6 +137,16 @@
     <a href="/tips" class="admin-link">View Tips (Admin Only)</a>
 
     <script>
+      // Configure marked to open links in new tabs
+      marked.use({
+        renderer: {
+          link(href, title, text) {
+            const titleAttr = title ? ` title="${title}"` : '';
+            return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+          }
+        }
+      });
+
       const form = document.getElementById("chat-form");
       const chatBox = document.getElementById("chat-box");
       const tipForm = document.getElementById("tip-form");
